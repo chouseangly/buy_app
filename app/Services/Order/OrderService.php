@@ -10,55 +10,61 @@ class OrderService
 {
     public function __construct(private OrderRepo $repo) {}
 
-    public function placeOrder()
-    {
-        $user = auth()->user();
-        $cartItems = $user->cartProducts;
+   public function placeOrder()
+{
+    $user = auth()->user();
+    // Ensure we load the current stock from the database
+    $cartItems = $user->cartProducts;
 
-        if ($cartItems->isEmpty()) {
-            throw new \Exception("Cart is empty");
-        }
-
-        return DB::transaction(function () use ($user, $cartItems) {
-            $totalAmount = 0;
-            $itemsToSave = [];
-
-            foreach ($cartItems as $product) {
-                $discountedPrice = $product->price * (1 - ($product->discount / 100));
-                $totalAmount += $discountedPrice * $product->pivot->qty;
-
-                $itemsToSave[] = [
-                    'product_id' => $product->id,
-                    'qty' => $product->pivot->qty,
-                    'price' => $discountedPrice,
-                ];
-            }
-
-            // Use Repository to create the main order
-            $order = $this->repo->createOrder([
-                'user_id' => $user->id,
-                'total_amount' => $totalAmount,
-                'status' => 'pending'
-            ]);
-
-            // Use Repository to create each item
-            foreach ($itemsToSave as $item) {
-                $this->repo->createOrderItem($order, $item);
-            }
-
-            // Clear Cart
-            $user->cartProducts()->detach();
-
-            return $order->load('items');
-        });
+    if ($cartItems->isEmpty()) {
+        throw new \Exception("Cart is empty"); //
     }
 
+    return DB::transaction(function () use ($user, $cartItems) {
+        $totalAmount = 0;
+        $itemsToSave = [];
+
+        foreach ($cartItems as $product) {
+            // Check if enough stock is available
+            if ($product->stock < $product->pivot->qty) {
+                throw new \Exception("Product {$product->product_name} is out of stock.");
+            }
+
+            $discountedPrice = $product->price * (1 - ($product->discount / 100)); //
+            $totalAmount += $discountedPrice * $product->pivot->qty; //
+
+            $itemsToSave[] = [
+                'product_id' => $product->id,
+                'qty' => $product->pivot->qty,
+                'price' => $discountedPrice,
+            ];
+
+            // Decrement the stock immediately within the transaction
+            $product->decrement('stock', $product->pivot->qty);
+        }
+
+        // Use Repository to create the main order with a default 'pending' status
+        $order = $this->repo->createOrder([
+            'user_id' => $user->id,
+            'total_amount' => $totalAmount,
+            'status' => 'pending' //
+        ]);
+
+        foreach ($itemsToSave as $item) {
+            $this->repo->createOrderItem($order, $item); //
+        }
+
+        $user->cartProducts()->detach(); //
+
+        return $order->load('items'); //
+    });
+}
     public function getUserOrder(){
         return $this->repo->getUserOrders();
     }
 
     public function getOrderDetails($id){
-        
+
         return $this->repo->findUserOrder($id);
     }
 }

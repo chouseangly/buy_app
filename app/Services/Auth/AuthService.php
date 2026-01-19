@@ -17,6 +17,7 @@ class AuthService{
         $user = $this->repo->register([
             'name' => $data['name'],
             'email' => $data['email'],
+            'role' => 'customer',
             'password' => Hash::make($data['password'])
         ]);
 

@@ -2,6 +2,7 @@
 
 use App\Http\Controllers\Auth\AuthController;
 use App\Http\Controllers\Cart\CartController;
+use App\Http\Controllers\Category\CategoryController;
 use App\Http\Controllers\Favorite\FavoriteController;
 use App\Http\Controllers\Order\OrderController;
 use App\Http\Controllers\Product\ProductController;
@@ -16,10 +17,16 @@ Route::get('/user', function (Request $request) {
 Route::middleware('auth:sanctum')->group(function () {
     //products
 
-    Route::post('/products', [ProductController::class, 'addProduct']);
+    // Admin only routes
+    Route::middleware('role:admin')->group(function () {
+        Route::post('/products', [ProductController::class, 'addProduct']);
+        Route::post('/products/{id}', [ProductController::class, 'updateProduct']);
+        Route::delete('/products/{id}', [ProductController::class, 'deleteProduct']);
+        Route::post('/categories',[CategoryController::class,'addCategory']);
+    });
+
     Route::get('/products', [ProductController::class, 'getAllProducts']);
-    Route::post('/products/{id}', [ProductController::class, 'updateProduct']);
-    Route::delete('/products/{id}', [ProductController::class, 'deleteProduct']);
+
 
 
     //favorites

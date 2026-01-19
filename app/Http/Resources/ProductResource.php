@@ -15,6 +15,7 @@ class ProductResource extends JsonResource
             'product_name' => $this->product_name,
             'description' => $this->description,
             'price' => $this->price,
+            'stock' => $this->stock,
             'discount' => $this->discount . '%',
             'sale_price' => round($discountedPrice, 2),
             'user_id'  => auth()->id(),
