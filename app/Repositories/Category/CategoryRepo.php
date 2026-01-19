@@ -21,4 +21,20 @@ class CategoryRepo{
         return Category::create($data);
     }
 
+    public function getAll(){
+        return Category::where('is_active',true)->paginate(10);
+    }
+
+    public function update($id,array $data){
+        $category = Category::findOrFail($id);
+        $category->update($data);
+        return $category;
+    }
+
+    public function delete($id){
+        $category = Category::findOrFail($id);
+        $category->delete();
+        return $category;
+    }
+
 }

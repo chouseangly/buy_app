@@ -14,6 +14,7 @@ class ProductService{
         return DB::transaction(function () use ($request){
             $product = $this->repo->createProduct([
                 'product_name' => $request->product_name,
+                'category_id' => $request->category_id,
                 'description' => $request->description,
                 'price' => $request->price,
                 'stock' => $request->stock,
@@ -38,6 +39,7 @@ class ProductService{
         return DB::transaction(function () use ($id,$request) {
             $product = $this->repo->update($id,[
                 'product_name' => $request->product_name,
+                'category_id' => $request->category_id,
                 'description' => $request->description,
                 'price' => $request->price,
                 'stock' => $request->stock,

@@ -23,6 +23,8 @@ Route::middleware('auth:sanctum')->group(function () {
         Route::post('/products/{id}', [ProductController::class, 'updateProduct']);
         Route::delete('/products/{id}', [ProductController::class, 'deleteProduct']);
         Route::post('/categories',[CategoryController::class,'addCategory']);
+        Route::post('/categories/{id}',[CategoryController::class,'updateCategory']);
+        Route::delete('/categories/{id}',[CategoryController::class,'deleteCategory']);
     });
 
     Route::get('/products', [ProductController::class, 'getAllProducts']);
@@ -53,3 +55,4 @@ Route::middleware('auth:sanctum')->group(function () {
 
 Route::post('/register', [AuthController::class, 'register']);
 Route::post('/login', [AuthController::class, 'login']);
+Route::get('/categories',[CategoryController::class,'getAllCategory']);
