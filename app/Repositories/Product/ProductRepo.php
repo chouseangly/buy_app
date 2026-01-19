@@ -25,7 +25,21 @@ class ProductRepo{
     }
 
     public function getAll(){
-        return Product::with('images')->paginate(10);
+       return Product::with('images')
+        ->when($filters['search'] ?? null, function ($query, $search) {
+            $query->where('product_name', 'like', '%' . $search . '%')
+                  ->orWhere('description', 'like', '%' . $search . '%');
+        })
+        ->when($filters['category_id'] ?? null, function ($query, $categoryId) {
+            $query->where('category_id', $categoryId);
+        })
+        ->when($filters['min_price'] ?? null, function ($query, $minPrice) {
+            $query->where('price', '>=', $minPrice);
+        })
+        ->when($filters['max_price'] ?? null, function ($query, $maxPrice) {
+            $query->where('price', '<=', $maxPrice);
+        })
+        ->paginate(10);
     }
 
     public function update($id,array $data): Product
@@ -36,7 +50,7 @@ class ProductRepo{
     }
 
     public function delete($id){
-        
+
         $product = Product::findOrFail($id);
 
        return $product->delete();

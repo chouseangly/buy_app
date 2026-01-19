@@ -31,8 +31,8 @@ class ProductService{
         });
     }
 
-    public function getAllProducts(){
-        return $this->repo->getAll();
+    public function getAllProducts(array $filters = []){
+        return $this->repo->getAll($filters);
     }
 
     public function update($id,$request){

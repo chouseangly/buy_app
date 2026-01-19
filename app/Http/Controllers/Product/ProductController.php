@@ -20,9 +20,11 @@ class ProductController extends Controller
         ], 201);
     }
 
-    public function getAllProducts(ProductService $service)
+    public function getAllProducts(Request $request, ProductService $service)
     {
-        $products = $service->getAllProducts();
+        // Collect specific allowed filters from the query string
+        $filters = $request->only(['search', 'category_id', 'min_price', 'max_price']);
+        $products = $service->getAllProducts($filters);
 
         if (!$products) {
             return response()->json(
@@ -41,10 +43,11 @@ class ProductController extends Controller
         );
     }
 
-    public function updateProduct(StoreProductRequest $request,$id,ProductService $service){
-        $product = $service->update($id,$request);
+    public function updateProduct(StoreProductRequest $request, $id, ProductService $service)
+    {
+        $product = $service->update($id, $request);
 
-           if (!$product) {
+        if (!$product) {
             return response()->json(
                 [
                     'message' => 'post not found'
@@ -59,7 +62,8 @@ class ProductController extends Controller
         ], 201);
     }
 
-    public function deleteProduct($id,ProductService $service){
+    public function deleteProduct($id, ProductService $service)
+    {
         $product = $service->delete($id);
 
         if (!$product) {
@@ -71,7 +75,7 @@ class ProductController extends Controller
             );
         }
 
-         return response()->json([
+        return response()->json([
             'message' => 'delete product successfully'
         ], 201);
     }
