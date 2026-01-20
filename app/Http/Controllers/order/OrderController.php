@@ -15,12 +15,11 @@ class OrderController extends Controller
     {
         try {
             $order = $service->placeOrder();
-            return response()->json(
-                [
-                    'data' => $order,
-                    'message' => 'Order place successfully'
-                ]
-            );
+            return response()->json([
+                'message' => 'Order initiated',
+                'order' => new OrderResource($order['order']),
+                'client_secret' => $order['client_secret']
+            ], 201);
         } catch (\Exception $e) {
             return response()->json(['message' => $e->getMessage()], 400);
         }

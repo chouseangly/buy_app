@@ -41,4 +41,8 @@ return [
         'gateway' => env('PINATA_GATEWAY_URL', 'https://bronze-eligible-orangutan-840.mypinata.cloud/ipfs/'),
     ],
 
+    'stripe' => [
+    'secret' => env('STRIPE_SECRET'),
+],
+
 ];
