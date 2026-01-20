@@ -6,12 +6,14 @@ use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Auth;
 use App\Repositories\Profile\UserProfileRepo;
 
-class UserProfileService{
+class UserProfileService
+{
     public function __construct(private UserProfileRepo $repo) {}
 
-    public function update($id,$request){
-        return DB::transaction(function() use ($id,$request){
-            $profile = $this->repo->update($id,[
+    public function update($id, $request)
+    {
+        return DB::transaction(function () use ($id, $request) {
+            $profile = $this->repo->update($id, [
                 'address' => $request->address,
                 'phone' => $request->phone,
                 'bio' => $request->bio,
@@ -19,20 +21,21 @@ class UserProfileService{
                 'gender' => $request->gender
             ]);
 
-            if($request->hasFile('profile')){
-               $this->repo->addImage($profile, $request->file('profile'));
+            if ($request->hasFile('profile')) {
+                // PASS THE FILE, NOT THE BOOLEAN
+                $this->repo->addImage($profile, $request->file('profile'));
             }
             return $profile->fresh();
         });
     }
 
-    public function getProfile(){
+    public function getProfile()
+    {
         $user = Auth::user();
-        if(!$user){
+        if (!$user) {
             return null;
         }
 
         return $this->repo->getProfile($user);
-
     }
 }
