@@ -65,3 +65,5 @@ Route::post('/login', [AuthController::class, 'login']);
 Route::get('/categories',[CategoryController::class,'getAllCategory']);
  Route::get('/products', [ProductController::class, 'getAllProducts']);
 
+
+ Route::post('/webhooks/stripe', [App\Http\Controllers\Order\StripeWebhookController::class, 'handleWebhook']);

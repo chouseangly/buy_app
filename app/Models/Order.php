@@ -9,7 +9,8 @@ class Order extends Model
     protected $fillable = [
         'user_id',
         'total_amount',
-        'status'
+        'status',
+        'payment_intent_id'
     ];
 
     public function items(){

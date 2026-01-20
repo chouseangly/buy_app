@@ -16,6 +16,11 @@ return Application::configure(basePath: dirname(__DIR__))
         $middleware->alias([
             'role'=> RoleMiddleware::class,
         ]);
+
+        // Add this section to allow Stripe to post to your app
+    $middleware->validateCsrfTokens(except: [
+        'api/webhooks/stripe',
+    ]);
     })
     ->withExceptions(function (Exceptions $exceptions): void {
         //
