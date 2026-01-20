@@ -23,6 +23,15 @@ return new class extends Migration
             $table->boolean('is_active')->default(false);
             $table->foreignId('user_id')->constrained()->cascadeOnDelete();
             $table->timestamps();
+
+            // Index for text-based searching
+            $table->index('product_name');
+
+            // Index for category filtering
+            $table->index('category_id');
+
+            // Index for price range filtering
+            $table->index('price');
         });
     }
 

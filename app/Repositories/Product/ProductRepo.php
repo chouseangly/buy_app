@@ -24,7 +24,7 @@ class ProductRepo{
         }
     }
 
-    public function getAll(){
+    public function getAll(array $filters = []){
        return Product::with('images')
         ->when($filters['search'] ?? null, function ($query, $search) {
             $query->where('product_name', 'like', '%' . $search . '%')

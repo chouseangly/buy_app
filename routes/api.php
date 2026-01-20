@@ -6,6 +6,8 @@ use App\Http\Controllers\Category\CategoryController;
 use App\Http\Controllers\Favorite\FavoriteController;
 use App\Http\Controllers\Order\OrderController;
 use App\Http\Controllers\Product\ProductController;
+use App\Http\Controllers\Profile\UserProfileController;
+use App\Models\UserProfile;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 
@@ -27,7 +29,6 @@ Route::middleware('auth:sanctum')->group(function () {
         Route::delete('/categories/{id}',[CategoryController::class,'deleteCategory']);
     });
 
-    Route::get('/products', [ProductController::class, 'getAllProducts']);
 
 
 
@@ -51,8 +52,16 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::post('/checkout',[OrderController::class,'checkout']);
     Route::get('/orders', [OrderController::class, 'getOrders']);      // History
     Route::get('/orders/{id}', [OrderController::class, 'getOrderDetails']);   // Details
+
+
+    //user profile
+
+    Route::get('/profiles',[UserProfileController::class,'getProfile']);
+    Route::put('/profiles/{id}',[UserProfileController::class,'updateProfile']);
 });
 
 Route::post('/register', [AuthController::class, 'register']);
 Route::post('/login', [AuthController::class, 'login']);
 Route::get('/categories',[CategoryController::class,'getAllCategory']);
+ Route::get('/products', [ProductController::class, 'getAllProducts']);
+
