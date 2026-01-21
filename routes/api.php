@@ -66,6 +66,8 @@ Route::middleware('auth:sanctum')->group(function () {
     // addresses
 
     Route::post('/addresses',[AddressController::class,'createAddress']);
+    Route::get('/addresses',[AddressController::class,'getAddress']);
+    Route::post('/addresses/{id}',[AddressController::class,'updateAddress']);
 });
 
 Route::post('/register', [AuthController::class, 'register']);
