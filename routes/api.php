@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\Address\AddressController;
 use App\Http\Controllers\Auth\AuthController;
 use App\Http\Controllers\Cart\CartController;
 use App\Http\Controllers\Category\CategoryController;
@@ -7,6 +8,7 @@ use App\Http\Controllers\Favorite\FavoriteController;
 use App\Http\Controllers\Order\OrderController;
 use App\Http\Controllers\Product\ProductController;
 use App\Http\Controllers\Profile\UserProfileController;
+use App\Models\Address;
 use App\Models\UserProfile;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
@@ -58,12 +60,16 @@ Route::middleware('auth:sanctum')->group(function () {
 
     Route::get('/profiles',[UserProfileController::class,'getProfile']);
     Route::put('/profiles/{id}',[UserProfileController::class,'updateProfile']);
+
+    // addresses
+
+    Route::post('/addresses',[AddressController::class,'createAddress']);
 });
 
 Route::post('/register', [AuthController::class, 'register']);
 Route::post('/login', [AuthController::class, 'login']);
 Route::get('/categories',[CategoryController::class,'getAllCategory']);
- Route::get('/products', [ProductController::class, 'getAllProducts']);
+Route::get('/products', [ProductController::class, 'getAllProducts']);
 
 
  Route::post('/webhooks/stripe', [App\Http\Controllers\Order\StripeWebhookController::class, 'handleWebhook']);
