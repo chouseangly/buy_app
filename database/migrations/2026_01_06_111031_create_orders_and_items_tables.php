@@ -18,6 +18,12 @@ return new class extends Migration
             $table->decimal('total_amount', 10, 2);
             $table->string('status')->default('pending');
             $table->string('payment_intent_id')->nullable()->after('total_amount');
+            $table->string('coupon_code')->nullable()->after('payment_intent_id');
+
+            $table->foreign('coupon_code')
+                ->references('code')
+                ->on('coupons')
+                ->onDelete('set null');
             $table->timestamps();
         });
 

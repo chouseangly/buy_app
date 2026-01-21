@@ -4,6 +4,7 @@ namespace App\Services\Order;
 
 use Stripe\Stripe;
 use App\Models\Order;
+use App\Models\Coupon;
 use Stripe\PaymentIntent;
 use Illuminate\Support\Facades\DB;
 use App\Repositories\Order\OrderRepo;
@@ -17,7 +18,7 @@ class OrderService
     /**
      * Now accepts $addressId from the Controller
      */
-    public function placeOrder(int $addressId)
+    public function placeOrder(int $addressId, ?string $couponCode = null)
     {
         $user = auth()->user();
         $cartItems = $user->cartProducts;
@@ -26,7 +27,7 @@ class OrderService
             throw new \Exception("Cart is empty");
         }
 
-        return DB::transaction(function () use ($user, $cartItems, $addressId) {
+        return DB::transaction(function () use ($user, $cartItems, $addressId,$couponCode) {
             $totalAmount = 0;
             $itemsToSave = [];
 
@@ -46,6 +47,21 @@ class OrderService
                 // Decrement Logic
                 $product->decrement('stock', $product->pivot->qty);
             }
+
+            // Apply Coupon Logic
+        if ($couponCode) {
+            $coupon = Coupon::where('code', $couponCode)
+                ->where('expires_at', '>', now())
+                ->first();
+
+            if ($coupon) {
+                if ($coupon->type === 'percent') {
+                    $totalAmount -= ($totalAmount * ($coupon->value / 100));
+                } else {
+                    $totalAmount -= $coupon->value;
+                }
+            }
+        }
 
             try {
                 $paymentIntent = PaymentIntent::create([

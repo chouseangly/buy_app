@@ -2,6 +2,7 @@
 
 namespace App\Services\Address;
 
+use App\Models\Address;
 use App\Repositories\Address\AddressRepo;
 use Illuminate\Container\Attributes\auth;
 
@@ -9,6 +10,11 @@ class AddressService{
     public function __construct(private AddressRepo $repo){}
 
     public function createAddress($request){
+
+        if ($request->is_default) {
+        // Set all other user addresses to not default
+        Address::where('user_id', auth()->id())->update(['is_default' => false]);
+    }
 
         return $this->repo->createAddress([
             'user_id' =>auth()->id(),
