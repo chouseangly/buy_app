@@ -11,10 +11,10 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('adresses', function (Blueprint $table) {
+        Schema::create('addresses', function (Blueprint $table) {
             $table->id();
             $table->foreignId('user_id')->constrained()->cascadeOnDelete();
-            $table->string('address_name')->placeholder('e.g., Home, Office');
+            $table->string('address_name');
             $table->string('recipient_name');
             $table->string('phone_number');
             $table->string('address_line_1');
@@ -22,9 +22,9 @@ return new class extends Migration
             $table->string('city');
             $table->string('state')->nullable();
             $table->string('postal_code');
-            $table->string('country');
+            $table->string('country')->default('Cambodia');
             $table->boolean('is_default')->default(false);
-            $table->timestamps();
+            $table->timestamps(); // Ensure this line is present
         });
     }
 
@@ -33,6 +33,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('adresses');
+        Schema::dropIfExists('addresses');
     }
 };

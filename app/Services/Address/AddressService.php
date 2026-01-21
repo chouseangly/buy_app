@@ -10,7 +10,7 @@ class AddressService{
 
     public function createAddress($request){
         $data = $request->all();
-        $data['user_id'] = Auth()->id();
+        $data['user_id'] = auth()->id();
 
         return $this->repo->createAddress($data);
     }

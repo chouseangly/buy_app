@@ -20,11 +20,23 @@ class OrderRepo
 
     public function getUserOrders()
     {
-        return Auth::user()->orders()->with(['items.product.images'])->latest()->get();
+        return Auth::user()->orders()->with(['address','items.product.images'])->latest()->get();
     }
 
     public function findUserOrder($id)
     {
-        return Auth::user()->orders()->with(['items.product.images'])->findOrFail($id);
+        return Auth::user()->orders()->with(['address','items.product.images'])->findOrFail($id);
+    }
+
+    public function changeStatus( $id, string $status){
+        $order = Order::findOrFail($id);
+        $order->update(['status' => $status]);
+        return $order;
+    }
+
+    public function getAllOrdersForAdmin(){
+        $order = Order::with(['user', 'address', 'items.product.images'])->latest()->paginate(15);
+
+        return $order;
     }
 }

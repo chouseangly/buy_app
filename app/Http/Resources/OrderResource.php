@@ -15,6 +15,7 @@ class OrderResource extends JsonResource
         'total_paid'   => $this->total_amount,
         'status'       => $this->status,
         'order_date'   => $this->created_at->format('Y-m-d H:i:s'),
+        'address' => $this->address,
         // Map the items through the OrderItemResource
         'items'        => OrderItemResource::collection($this->whenLoaded('items')),
     ];

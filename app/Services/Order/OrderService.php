@@ -11,11 +11,13 @@ use App\Repositories\Order\OrderRepo;
 class OrderService
 {
     public function __construct(private OrderRepo $repo) {
-        // Initialize Stripe with your secret key
         Stripe::setApiKey(config('services.stripe.secret'));
     }
 
-    public function placeOrder()
+    /**
+     * Now accepts $addressId from the Controller
+     */
+    public function placeOrder(int $addressId)
     {
         $user = auth()->user();
         $cartItems = $user->cartProducts;
@@ -24,7 +26,7 @@ class OrderService
             throw new \Exception("Cart is empty");
         }
 
-        return DB::transaction(function () use ($user, $cartItems) {
+        return DB::transaction(function () use ($user, $cartItems, $addressId) {
             $totalAmount = 0;
             $itemsToSave = [];
 
@@ -41,27 +43,31 @@ class OrderService
                     'qty' => $product->pivot->qty,
                     'price' => $discountedPrice,
                 ];
-
+                // Decrement Logic
                 $product->decrement('stock', $product->pivot->qty);
             }
 
-            // 1. Create the Stripe Payment Intent
             try {
                 $paymentIntent = PaymentIntent::create([
-                    'amount' => $totalAmount * 100, // Stripe handles amounts in cents
+                    'amount' => $totalAmount * 100,
                     'currency' => 'usd',
-                    'metadata' => ['user_id' => $user->id],
+                    // Added address_id to Stripe metadata for tracking
+                    'metadata' => [
+                        'user_id' => $user->id,
+                        'address_id' => $addressId
+                    ],
                 ]);
             } catch (\Exception $e) {
                 throw new \Exception("Stripe Error: " . $e->getMessage());
             }
 
-            // 2. Create the Order with the Stripe ID
+            // Create order with the selected address_id
             $order = $this->repo->createOrder([
                 'user_id' => $user->id,
+                'address_id' => $addressId, // New field saved here
                 'total_amount' => $totalAmount,
                 'status' => 'pending',
-                'payment_intent_id' => $paymentIntent->id // Store this to verify payment later
+                'payment_intent_id' => $paymentIntent->id
             ]);
 
             foreach ($itemsToSave as $item) {
@@ -70,19 +76,35 @@ class OrderService
 
             $user->cartProducts()->detach();
 
-            // 3. Return the order and the client_secret for the frontend
             return [
                 'order' => $order->load('items'),
                 'client_secret' => $paymentIntent->client_secret
             ];
         });
     }
+
     public function getUserOrder(){
         return $this->repo->getUserOrders();
     }
 
     public function getOrderDetails($id){
-
         return $this->repo->findUserOrder($id);
+    }
+
+    public function changeStatus($id,string $status){
+
+        $order = $this->repo->changeStatus($id,$status);
+
+       // Logic: Trigger notification if shipped
+        if ($status === 'shipped') {
+            // Notification::send($order->user, new OrderShippedNotification($order));
+        }
+
+        return $order;
+    }
+
+    public function getAllOrdersForAdmin(){
+
+        return $this->repo->getAllOrdersForAdmin();
     }
 }

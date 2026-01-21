@@ -14,9 +14,10 @@ return new class extends Migration
         Schema::create('orders', function (Blueprint $table) {
             $table->id();
             $table->foreignId('user_id')->constrained()->cascadeOnDelete();
+            $table->foreignId('address_id')->after('user_id')->constrained();
             $table->decimal('total_amount', 10, 2);
             $table->string('status')->default('pending');
-           $table->string('payment_intent_id')->nullable()->after('total_amount');
+            $table->string('payment_intent_id')->nullable()->after('total_amount');
             $table->timestamps();
         });
 

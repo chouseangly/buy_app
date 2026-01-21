@@ -29,6 +29,8 @@ Route::middleware('auth:sanctum')->group(function () {
         Route::post('/categories',[CategoryController::class,'addCategory']);
         Route::post('/categories/{id}',[CategoryController::class,'updateCategory']);
         Route::delete('/categories/{id}',[CategoryController::class,'deleteCategory']);
+        Route::post('/orders/{id}/status',[OrderController::class,'updateOrderStatus']);
+        Route::get('/admin/orders',[OrderController::class,'getAllOrdersForAdmin']);
     });
 
 

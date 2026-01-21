@@ -11,10 +11,13 @@ use Illuminate\Foundation\Auth\Access\AuthorizesRequests;
 class OrderController extends Controller
 {
     use AuthorizesRequests;
-    public function checkout(OrderService $service)
+    public function checkout(Request $request, OrderService $service)
     {
+        $request->validate([
+        'address_id' => 'required|exists:addresses,id'
+    ]);
         try {
-            $order = $service->placeOrder();
+            $order = $service->placeOrder($request->address_id);
             return response()->json([
                 'message' => 'Order initiated',
                 'order' => new OrderResource($order['order']),
@@ -60,5 +63,28 @@ class OrderController extends Controller
                 'message' => "Sorry, Order #{$id} does not exist in our records."
             ], 404);
         }
+    }
+
+    public function updateOrderStatus(Request $request,$id,OrderService $service){
+        $request->validate([
+            'status' => 'required|in:processing,shipped,delivered,cancelled'
+        ]);
+
+        $order = $service->changeStatus($id,$request->status);
+
+        return response()->json([
+            'data' => $order,
+            'message' => "Order status updated to {$request->status}"
+        ],201);
+    }
+
+    public function getAllOrdersForAdmin(OrderService $service){
+
+        $orders = $service->getAllOrdersForAdmin();
+
+        return response()->json([
+            'data' => OrderResource::collection($orders),
+            'message' => 'get all orders successfully'
+        ],200);
     }
 }
